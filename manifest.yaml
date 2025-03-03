@@ -27,7 +27,7 @@ rules:
 - apiGroups: ['']
   resources: [pods/eviction]
   verbs: [create]
-- apiGroups: [extensions]
+- apiGroups: [apps]
   resources: [daemonsets]
   verbs: [get, watch, list]
 ---
@@ -40,6 +40,25 @@ roleRef: {apiGroup: rbac.authorization.k8s.io, kind: ClusterRole, name: draino}
 subjects:
 - {kind: ServiceAccount, name: draino, namespace: kube-system}
 ---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels: {component: draino}
+  name: draino
+rules:
+- apiGroups: [coordination.k8s.io]
+  resources: [leases]
+  verbs: [get, list, watch, create, update, patch, delete]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels: {component: draino}
+  name: draino
+roleRef: {apiGroup: rbac.authorization.k8s.io, kind: Role, name: draino}
+subjects:
+- {kind: ServiceAccount, name: draino, namespace: kube-system}
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -47,25 +66,32 @@ metadata:
   name: draino
   namespace: kube-system
 spec:
-  # Draino does not currently support locking/master election, so you should
-  # only run one draino at a time. Draino won't start draining nodes immediately
-  # so it's usually safe for multiple drainos to exist for a brief period of
-  # time.
-  replicas: 1
   selector:
     matchLabels: {component: draino}
   template:
     metadata:
       labels: {component: draino}
-      name: draino
-      namespace: kube-system
     spec:
       containers:
       # You'll want to change these labels and conditions to suit your deployment.
-      - command: [/draino, --dry-run, --node-label=draino-enabled=true, BadCondition, ReallyBadCondition]
-        image: planetlabs/draino:5e07e93
+      - command: [/draino, --dry-run, --namespace=$(POD_NAMESPACE), --node-label=draino-enabled=true, BadCondition, ReallyBadCondition]
+        env:
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: [ALL]
+        image: ghcr.io/pfnet/draino:latest
         livenessProbe:
           httpGet: {path: /healthz, port: 10002}
           initialDelaySeconds: 30
         name: draino
       serviceAccountName: draino
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
