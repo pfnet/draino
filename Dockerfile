@@ -5,7 +5,7 @@ RUN apk update && apk add git && apk add curl
 WORKDIR /go/src/github.com/planetlabs/draino
 COPY . .
 
-RUN go build -o /draino ./cmd/draino
+RUN CGO_ENABLED=0 go build -o /draino ./cmd/draino
 
 FROM alpine:3.11
 
