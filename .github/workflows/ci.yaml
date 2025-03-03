@@ -14,7 +14,7 @@ jobs:
     - uses: actions/setup-go@v5
       with:
         go-version-file: go.mod
-    # - run: go mod tidy && git diff -s --exit-code go.sum
+    - run: go mod tidy && git diff -s --exit-code go.sum
     - run: make test
   build:
     runs-on: ubuntu-latest
