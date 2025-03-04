@@ -1,4 +1,9 @@
-# draino [![Docker Pulls](https://img.shields.io/docker/pulls/planetlabs/draino.svg)](https://hub.docker.com/r/planetlabs/draino/) [![Godoc](https://img.shields.io/badge/godoc-reference-blue.svg)](https://godoc.org/github.com/planetlabs/draino) [![Travis](https://img.shields.io/travis/com/planetlabs/draino.svg?maxAge=300)](https://travis-ci.com/planetlabs/draino/) [![Codecov](https://img.shields.io/codecov/c/github/planetlabs/draino.svg?maxAge=3600)](https://codecov.io/gh/planetlabs/draino/)
+This repository is a fork of https://github.com/planetlabs/draino. It has no activity (https://github.com/planetlabs/draino/issues/137).
+
+---
+
+# draino
+
 Draino automatically drains Kubernetes nodes based on labels and node
 conditions. Nodes that match _all_ of the supplied labels and _any_ of the
 supplied node conditions will be cordoned immediately and drained after a
@@ -21,37 +26,46 @@ Adding Draino to the mix enables autoremediation:
 
 ## Usage
 ```
-$ docker run planetlabs/draino /draino --help
+$ docker run ghcr.io/pfnet/draino /draino --help
 usage: draino [<flags>] <node-conditions>...
 
 Automatically cordons and drains nodes that match the supplied conditions.
 
+
 Flags:
-      --help                     Show context-sensitive help (also try --help-long and --help-man).
-  -d, --debug                    Run with debug logging.
-      --listen=":10002"          Address at which to expose /metrics and /healthz.
-      --kubeconfig=KUBECONFIG    Path to kubeconfig file. Leave unset to use in-cluster config.
-      --master=MASTER            Address of Kubernetes API server. Leave unset to use in-cluster config.
-      --dry-run                  Emit an event without cordoning or draining matching nodes.
-      --max-grace-period=8m0s    Maximum time evicted pods will be given to terminate gracefully.
-      --eviction-headroom=30s    Additional time to wait after a pod's termination grace period for it to have been deleted.
-      --drain-buffer=10m0s       Minimum time between starting each drain. Nodes are always cordoned immediately.
-      --node-label="foo=bar"     (DEPRECATED) Only nodes with this label will be eligible for cordoning and draining. May be specified multiple times.
-      --node-label-expr="metadata.labels.foo == 'bar'"
-                                 This is an expr string https://github.com/antonmedv/expr that must return true or false. See `nodefilters_test.go` for examples
-      --namespace="kube-system"  Namespace used to create leader election lock object.	
+      --[no-]help                Show context-sensitive help (also try --help-long and --help-man). ($DRAINO_HELP)
+  -d, --[no-]debug               Run with debug logging. ($DRAINO_DEBUG)
+      --listen=":10002"          Address at which to expose /metrics and /healthz. ($DRAINO_LISTEN)
+      --kubeconfig=KUBECONFIG    Path to kubeconfig file. Leave unset to use in-cluster config. ($DRAINO_KUBECONFIG)
+      --master=MASTER            Address of Kubernetes API server. Leave unset to use in-cluster config. ($DRAINO_MASTER)
+      --[no-]dry-run             Emit an event without cordoning or draining matching nodes. ($DRAINO_DRY_RUN)
+      --max-grace-period=8m0s    Maximum time evicted pods will be given to terminate gracefully. ($DRAINO_MAX_GRACE_PERIOD)
+      --eviction-headroom=30s    Additional time to wait after a pod's termination grace period for it to have been deleted. ($DRAINO_EVICTION_HEADROOM)
+      --drain-buffer=10m0s       Minimum time between starting each drain. Nodes are always cordoned immediately. ($DRAINO_DRAIN_BUFFER)
+      --node-label=NODE-LABEL ...
+                                 (Deprecated) Nodes with this label will be eligible for cordoning and draining. May be specified multiple times ($DRAINO_NODE_LABEL)
+      --node-label-expr=NODE-LABEL-EXPR
+                                 Nodes that match this expression will be eligible for cordoning and draining. ($DRAINO_NODE_LABEL_EXPR)
+      --namespace="kube-system"  Namespace used to create leader election lock object. ($DRAINO_NAMESPACE)
       --leader-election-lease-duration=15s
-                                 Lease duration for leader election.
+                                 Lease duration for leader election. ($DRAINO_LEADER_ELECTION_LEASE_DURATION)
       --leader-election-renew-deadline=10s
-                                 Leader election renew deadline.
+                                 Leader election renew deadline. ($DRAINO_LEADER_ELECTION_RENEW_DEADLINE)
       --leader-election-retry-period=2s
-                                 Leader election retry period.
-      --skip-drain               Whether to skip draining nodes after cordoning.
-      --evict-daemonset-pods     Evict pods that were created by an extant DaemonSet.
-      --evict-emptydir-pods      Evict pods with local storage, i.e. with emptyDir volumes.
-      --evict-unreplicated-pods  Evict pods that were not created by a replication controller.
+                                 Leader election retry period. ($DRAINO_LEADER_ELECTION_RETRY_PERIOD)
+      --leader-election-token-name="draino"
+                                 Leader election token name. ($DRAINO_LEADER_ELECTION_TOKEN_NAME)
+      --[no-]skip-drain          Whether to skip draining nodes after cordoning. ($DRAINO_SKIP_DRAIN)
+      --[no-]evict-daemonset-pods
+                                 Evict pods that were created by an extant DaemonSet. ($DRAINO_EVICT_DAEMONSET_PODS)
+      --[no-]evict-statefulset-pods
+                                 Evict pods that were created by an extant StatefulSet. ($DRAINO_EVICT_STATEFULSET_PODS)
+      --[no-]evict-emptydir-pods
+                                 Evict pods with local storage, i.e. with emptyDir volumes. ($DRAINO_EVICT_EMPTYDIR_PODS)
+      --[no-]evict-unreplicated-pods
+                                 Evict pods that were not created by a replication controller. ($DRAINO_EVICT_UNREPLICATED_PODS)
       --protected-pod-annotation=KEY[=VALUE] ...
-                                 Protect pods with this annotation from eviction. May be specified multiple times.
+                                 Protect pods with this annotation from eviction. May be specified multiple times. ($DRAINO_PROTECTED_POD_ANNOTATION)
 
 Args:
   <node-conditions>  Nodes for which any of these conditions are true will be cordoned and drained.
@@ -88,13 +102,9 @@ Keep the following in mind before deploying Draino:
 
 ## Deployment
 
-Draino is automatically built from master and pushed to the [Docker Hub](https://hub.docker.com/r/planetlabs/draino/).
-Builds are tagged `planetlabs/draino:$(git rev-parse --short HEAD)`.
+Draino is automatically built from tags and pushed to the [GitHub Container registry](https://github.com/pfnet/draino/pkgs/container/draino).
 
-**Note:** As of September, 2020 we no longer publish `planetlabs/draino:latest`
-in order to encourage explicit and pinned releases.
-
-An [example Kubernetes deployment manifest](manifest.yml) is provided.
+An [example Kubernetes deployment manifest](manifest.yaml) is provided.
 
 ## Monitoring
 
