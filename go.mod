@@ -5,17 +5,17 @@ go 1.24.0
 require (
 	contrib.go.opencensus.io/exporter/prometheus v0.4.2
 	github.com/alecthomas/kingpin/v2 v2.4.0
-	github.com/expr-lang/expr v1.16.9
-	github.com/go-test/deep v1.0.1
+	github.com/expr-lang/expr v1.17.4
+	github.com/go-test/deep v1.1.1
 	github.com/julienschmidt/httprouter v1.3.0
 	github.com/oklog/run v1.1.0
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.10.0
 	go.opencensus.io v0.24.1-0.20230717132223-01e6da5fc01c
 	go.uber.org/zap v1.27.0
-	k8s.io/api v0.32.2
-	k8s.io/apimachinery v0.32.2
-	k8s.io/client-go v0.32.2
+	k8s.io/api v0.32.5
+	k8s.io/apimachinery v0.32.5
+	k8s.io/client-go v0.32.5
 	k8s.io/klog/v2 v2.130.1
 )
 
