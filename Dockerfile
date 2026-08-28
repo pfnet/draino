@@ -9,5 +9,5 @@ COPY . .
 
 RUN CGO_ENABLED=0 go build -o /draino ./cmd/draino
 
-FROM gcr.io/distroless/static-debian12:nonroot
+FROM gcr.io/distroless/static-debian13:nonroot
 COPY --from=build /draino /draino
